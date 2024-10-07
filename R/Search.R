@@ -1,6 +1,6 @@
 #' Perform a Search Query to Tradera API
 #'
-#' This function sends a search request to the Tradera API using the provided credentials, page number, query, and ordering preferences. 
+#' This function sends a search request to the Tradera API using the provided credentials, page number, query, and ordering preferences.
 #' The results are returned as a list containing a data frame with relevant item details, and the total number of pages.
 #'
 #' @param AppId Numeric. The application ID for authentication with the Tradera API.
@@ -24,41 +24,41 @@
 #' @importFrom tidyr unnest_longer unnest_wider
 #' @importFrom dplyr "%>%"
 #' @importFrom dplyr filter
-#' @importFrom rlang .data 
+#' @importFrom rlang .data
 #'
 #' @export
 
 Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
   # Check if AppId is provided; if not, stop execution with an error message
   if (missing(AppId)) stop("AppId must be specified")
-  
+
   # Ensure AppId is numeric; if not, stop execution with an error message
   if (!is.numeric(AppId)) stop("AppId must be numeric")
 
   # Check if AppKey is provided; if not, stop execution with an error message
   if (missing(AppKey)) stop("AppKey must be specified")
-  
+
   # Ensure AppKey is a character string; if not, stop execution with an error message
   if (!is.character(AppKey)) stop("AppId must be character")
 
   # Check if pageNumber is provided; if not, stop execution with an error message
   if (missing(pageNumber)) stop("pageNumber must be specified")
-  
+
   # Ensure pageNumber is numeric; if not, stop execution with an error message
   if (!is.numeric(pageNumber)) stop("pageNumber must be numeric")
-  
+
   # Ensure pageNumber is a scalar; if not, stop execution with an error message
   if (!length(pageNumber) == 1) stop("pageNumber must be scalar")
 
   # Check if query is provided; if not, stop execution with an error message
   if (missing(query)) stop("query must be specified")
-  
+
   # Ensure query is a character string; if not, stop execution with an error message
   if (!is.character(query)) stop("query must be character")
 
   # Check if orderBy is provided; if not, stop execution with an error message
   if (missing(orderBy)) stop("orderBy must be specified")
-  
+
   # Ensure orderBy is one of the allowed values; if not, stop execution with an error message
   if (!orderBy %in% c(
     "Relevance",
@@ -70,13 +70,12 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
 
   # Define a nested function to perform the XML query
   xmlQuery <- function(AppId, AppKey, pageNumber, orderBy, query) {
-    
     # Set up the HTTP headers for the SOAP request
     header <- c(
       Accept = "text/xml", "Content-Type" = "text/xml; charset=utf-8",
       SOAPAction = "http://api.tradera.com/Search"
     )
-    
+
     # Construct the body of the SOAP request using XML format
     body <- paste0(r'[<?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -100,10 +99,10 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
   </soap:Body>
 </soap:Envelope>
 ]')
-    
+
     # Create a text gatherer to capture the response
     reader <- RCurl::basicTextGatherer()
-    
+
     # Perform the HTTP request to the Tradera API
     RCurl::curlPerform(
       url = "http://api.tradera.com/v3/searchservice.asmx",
@@ -111,30 +110,30 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
       postfields = body,
       writefunction = reader$update
     )
-    
+
     # Retrieve and return the response value
     return(reader$value())
   }
 
   # Call the xmlQuery function to execute the SOAP request
   xml <- xmlQuery(AppId, AppKey, pageNumber, orderBy, query)
-  
+
   # Check if the response is empty; if so, return an error message
   if (xml == "") {
     return(data.frame(Info = "Internal Tradera Error"))
   }
-  
+
   # Convert the XML response to a list
   xml_list <- xml2::as_list(xml2::read_xml(xml))
-  
+
   # Convert the list to a tibble and unnest the Envelope
   xml_df <- tibble::as_tibble(xml_list) %>% tidyr::unnest_longer("Envelope")
-  
+
   # Extract the SearchResult from the tibble
   xml_df <- xml_df[[1]][[1]][["SearchResult"]] %>%
     tibble::enframe() %>%
     tidyr::unnest_wider("value", names_sep = "_", names_repair = "universal")
-  
+
   # Get items and the total number of pages
   xml_df_pages <- xml_df %>% filter(.data$name == "TotalNumberOfPages")
   total_pages <- as.numeric(xml_df_pages$value_1)
@@ -144,7 +143,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
   if (nrow(xml_df) == 0) {
     return(data.frame(Info = "Nothing found!"))
   }
-  
+
   # Create a data frame with the relevant item details
   df <- data.frame(
     ShortDescription = unlist(xml_df$value_ShortDescription),
@@ -152,7 +151,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
     Price = unlist(xml_df$value_MaxBid),
     ItemUrl = unlist(xml_df$value_ItemUrl)
   )
-  
+
   # Return a list containing the data frame and total pages
   list_df <- list("df" = df, "total_pages" = total_pages)
   return(list_df)
