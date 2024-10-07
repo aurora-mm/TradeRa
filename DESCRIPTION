@@ -1,0 +1,22 @@
+Package: TradeRa
+Title: Accessing the Tradera API
+Description: This R package offers functionality for accessing the Tradera API, 
+    enabling users to retrieve seller items for further analysis. This package 
+    is a part of the coursework for the Advanced Programming in R course 
+    (732A94) at Linköping University.
+Version: 1.0
+Date: 2024-10-07
+Encoding: UTF-8
+License: GPL-2
+Authors@R: c(
+    person("Linn", "Frisell", email = "linfr259@student.liu.se", role = "cre"),
+    person("John", "Möller", email = "johmo@student.liu.se", role = "aut"))
+Maintainer: Linn F. <linfr259@student.liu.se>
+Imports: 
+    RCurl,
+    xml2,
+    tibble,
+    tidyr,
+    dplyr,
+    rlang
+RoxygenNote: 7.3.2
