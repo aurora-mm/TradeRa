@@ -121,10 +121,11 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
   # Check if the response is empty; if so, return an error message
   if (xml == "") {
     df <- data.frame(
-      ShortDescription = "Internal Tradera error",
+      ShortDescription = "Internal Tradera error!",
       LongDescription = "",
       Price = "",
-      ItemUrl = "")
+      ItemUrl = ""
+    )
     list_df <- list("df" = df, "total_pages" = 0)
     return(list_df)
   }
@@ -152,7 +153,8 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
       ShortDescription = "Nothing found!",
       LongDescription = "",
       Price = "",
-      ItemUrl = "")
+      ItemUrl = ""
+    )
     list_df <- list("df" = df, "total_pages" = 0)
     return(list_df)
   }
