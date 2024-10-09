@@ -1,0 +1,103 @@
+---
+title: "Performing Search Queries with the Tradera API in R"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Performing Search Queries with the Tradera API in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo=FALSE}
+library(TradeRa, warn.conflicts = FALSE)
+library(RCurl, warn.conflicts = FALSE)
+library(xml2, warn.conflicts = FALSE)
+library(tibble, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+# Introduction
+
+This vignette will guide you through using the `Search()` function to interact with the Tradera API. The `Search()` function provides a simple interface to send search queries and fetch results in a structured data format, making it easier to work with in R.
+
+# Prerequisites
+
+To use the function, you will need:
+
+* `AppId`: A numeric application ID for authentication with the Tradera API.
+* `AppKey`: A character string representing the application key for API access.
+* `RCurl`, `xml2`, `tibble`, `tidyr`, and `dplyr` libraries installed in your R environment. These libraries handle API requests, parsing XML, and data manipulation.
+
+# Usage
+
+## Function Arguments
+
+The function requires five arguments:
+
+* AppId (numeric): The application ID provided by Tradera for API authentication.
+* AppKey (character): The application key provided by Tradera for API authentication.
+* pageNumber (numeric): The page number of the search results to retrieve (starting from 1).
+* orderBy (character): Specifies the order of search results. Acceptable values are:
+  * Relevance: Orders results based on relevance to the search term.
+  * PriceAscending: Orders results by price in ascending order.
+  * PriceDescending: Orders results by price in descending order.
+* query (character): The search term or query string used to find items on Tradera.
+
+## Return Value
+
+The function returns a list with the following two components:
+
+* df: A data frame containing the following columns:
+  * ShortDescription: A brief description of the item.
+  * LongDescription: A detailed description of the item.
+  * Price: The price or current bid for the item.
+  * ItemUrl: A URL to the item's listing on Tradera.
+* total_pages: The total number of pages available for the query.
+
+If no items are found, the function returns a data frame with the message "Nothing found!". If there is an issue with the API (e.g., no response), it returns "Internal Tradera error!".
+
+# Example: Basic Search Query
+
+Here’s an example of using the function to search for ["Huernia"](https://en.wikipedia.org/wiki/Huernia) on Tradera, with results ordered by relevance:
+
+```{r}
+# Define API credentials and search parameters
+AppId <- 5205 # Fake AppId, replace with your actual AppId
+AppKey <- "180bdaf7-0455-45b5-8750-69ac9225ee6f" # Fake AppKey, replace with your actual AppKey
+query <- "Huernia"
+pageNumber <- 1
+orderBy <- "Relevance"
+
+# Perform the search
+result <- Search(AppId, AppKey, pageNumber, orderBy, query)
+
+# Show the result
+knitr::kable(head(result$df))
+```
+
+# Example: Pagination and Ordering
+
+If there are multiple pages of results, you can modify the `pageNumber` parameter to access different pages, for instance, in case of search for "iPhone":
+
+```{r}
+# Fetch results from page 2
+result_page_2 <- Search(AppId, AppKey, 2, "Relevance", "iPhone")
+```
+
+To sort the results by price (ascending or descending), adjust the `orderBy` parameter:
+
+```{r}  
+# Sort results by price (descending)
+result_by_price_asc <- Search(AppId, AppKey, 1, "PriceDescending", "iPhone")
+```
+
+# Conclusion
+
+The `Search()` function simplifies the process of interacting with the Tradera API, making it easy to search for items, retrieve paginated results, and order them by relevance or price. By following the steps outlined in this vignette, you can efficiently search for and analyze Tradera listings in R.
