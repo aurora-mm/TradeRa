@@ -120,7 +120,13 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
 
   # Check if the response is empty; if so, return an error message
   if (xml == "") {
-    return(data.frame(Info = "Internal Tradera Error"))
+    df <- data.frame(
+      ShortDescription = "Internal Tradera error",
+      LongDescription = "",
+      Price = "",
+      ItemUrl = "")
+    list_df <- list("df" = df, "total_pages" = 0)
+    return(list_df)
   }
 
   # Convert the XML response to a list
