@@ -9,7 +9,7 @@ enabling users to perform search queries. This package is a part of the coursewo
 
 # Dependencies
 
-RCurl, xml2, tibble, tidyr, dplyr
+RCurl, xml2, tibble, tidyr, dplyr, rlang
 
 # Installation
 

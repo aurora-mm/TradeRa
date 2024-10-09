@@ -15,12 +15,13 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, echo=FALSE}
-library(TradeRa, warn.conflicts = FALSE)
+library(TradeRa)
 library(RCurl, warn.conflicts = FALSE)
 library(xml2, warn.conflicts = FALSE)
 library(tibble, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
+library(rlang, warn.conflicts = FALSE)
 ```
 
 # Introduction
@@ -33,7 +34,7 @@ To use the function, you will need:
 
 * `AppId`: A numeric application ID for authentication with the Tradera API.
 * `AppKey`: A character string representing the application key for API access.
-* `RCurl`, `xml2`, `tibble`, `tidyr`, and `dplyr` libraries installed in your R environment. These libraries handle API requests, parsing XML, and data manipulation.
+* `RCurl`, `xml2`, `tibble`, `tidyr`, `dplyr` and `rlang` libraries installed in your R environment. These libraries handle API requests, parsing XML, and data manipulation.
 
 # Usage
 
@@ -69,8 +70,8 @@ Here’s an example of using the function to search for ["Huernia"](https://en.w
 
 ```{r}
 # Define API credentials and search parameters
-AppId <- 5205 # Fake AppId, replace with your actual AppId
-AppKey <- "180bdaf7-0455-45b5-8750-69ac9225ee6f" # Fake AppKey, replace with your actual AppKey
+AppId <- 5206 # Fake AppId, replace with your actual AppId
+AppKey <- "ff3c0f08-e66e-4189-971b-43094327265b" # Fake AppKey, replace with your actual AppKey
 query <- "Huernia"
 pageNumber <- 1
 orderBy <- "Relevance"

@@ -17,7 +17,8 @@ Imports:
     xml2,
     tibble,
     tidyr,
-    dplyr
+    dplyr,
+    rlang
 RoxygenNote: 7.3.2
 Suggests: 
     knitr,

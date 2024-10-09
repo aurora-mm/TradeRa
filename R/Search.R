@@ -24,6 +24,7 @@
 #' @importFrom tidyr unnest_longer unnest_wider
 #' @importFrom dplyr "%>%"
 #' @importFrom dplyr filter
+#' @importFrom rlang .data
 #'
 #' @export
 
