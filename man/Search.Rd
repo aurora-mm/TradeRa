@@ -25,7 +25,7 @@ A list containing two elements:
 If no items are found, the function returns a data frame with the message `"Nothing found!"`. If the API response is empty, it returns a data frame with the message `"Internal Tradera Error"`.
 }
 \description{
-This function sends a search request to the Tradera API using the provided credentials, page number, query, and ordering preferences. 
+This function sends a search request to the Tradera API using the provided credentials, page number, query, and ordering preferences.
 The results are returned as a list containing a data frame with relevant item details, and the total number of pages.
 }
 \details{

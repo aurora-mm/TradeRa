@@ -139,9 +139,16 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
   total_pages <- as.numeric(xml_df_pages$value_1)
   xml_df <- xml_df %>% filter(.data$name == "Items")
 
-  # Check if there are no items found; if so, return a message
+  # Check if there are no items found;
+  # If so, return df with same structure but with "Nothing found"
   if (nrow(xml_df) == 0) {
-    return(data.frame(Info = "Nothing found!"))
+    df <- data.frame(
+      ShortDescription = "Nothing found!",
+      LongDescription = "",
+      Price = "",
+      ItemUrl = "")
+    list_df <- list("df" = df, "total_pages" = 0)
+    return(list_df)
   }
 
   # Create a data frame with the relevant item details
