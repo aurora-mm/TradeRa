@@ -1,9 +1,9 @@
 Package: TradeRa
-Title: Accessing the Tradera API
+Title: Performing Search Queries with the Tradera API in R
 Description: This R package offers functionality for accessing the Tradera API, 
-    enabling users to retrieve seller items for further analysis. This package 
-    is a part of the coursework for the Advanced Programming in R course 
-    (732A94) at Linköping University.
+    enabling users to perform search queries. This package is a part of the 
+    coursework for the Advanced Programming in R course  (732A94) at Linköping 
+    University.
 Version: 1.0
 Date: 2024-10-07
 Encoding: UTF-8
@@ -17,8 +17,7 @@ Imports:
     xml2,
     tibble,
     tidyr,
-    dplyr,
-    rlang
+    dplyr
 RoxygenNote: 7.3.2
 Suggests: 
     knitr,
