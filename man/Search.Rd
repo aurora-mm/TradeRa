@@ -4,30 +4,32 @@
 \alias{Search}
 \title{Perform a Search Query to Tradera API}
 \usage{
-Search(AppId, AppKey, pageNumber, orderBy, query)
+Search(AppId, AppKey, orderBy, query)
 }
 \arguments{
 \item{AppId}{Numeric. The application ID for authentication with the Tradera API.}
 
 \item{AppKey}{Character. The application key for authentication with the Tradera API.}
 
-\item{pageNumber}{Numeric. The page number of the search results to retrieve. Must be a scalar.}
-
 \item{orderBy}{Character. Specifies the order of the search results. Can be one of `Relevance`, `PriceAscending`, or `PriceDescending`.}
 
 \item{query}{Character. The search term or query to be used for retrieving items.}
 }
 \value{
-A list containing two elements:
-\item{df}{A data frame with the following columns: `ShortDescription`, `LongDescription`, `Price`, and `ItemUrl`, which contain details of the items found in the search results.}
-\item{total_pages}{Numeric. The total number of pages available for the search query.}
+A data frame with the following columns:
+\item{ShortDescription}{A brief description of the item.}
+\item{LongDescription}{A detailed description of the item.}
+\item{Price}{The price or current bid for the item.}
+\item{ItemUrl}{A URL to the item's listing on Tradera.}
 
 If no items are found, the function returns a data frame with the message `"Nothing found!"`. If the API response is empty, it returns a data frame with the message `"Internal Tradera Error"`.
 }
 \description{
-This function sends a search request to the Tradera API using the provided credentials, page number, query, and ordering preferences.
-The results are returned as a list containing a data frame with relevant item details, and the total number of pages.
+This function sends a search request to the Tradera API using the provided credentials, query, and ordering preferences.
+The results are returned as a data frame with relevant item details.
 }
 \details{
 The function constructs a SOAP request to interact with the Tradera API, performs the request using `RCurl`, and parses the XML response into a data frame using `xml2` and `tibble`.
+The function returns only the first 50 results on Tradera for the given search query. 
+Due to the limit on 100 calls to the Tradera API per day the results of the query are cached in the local environment.
 }

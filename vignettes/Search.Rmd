@@ -36,15 +36,18 @@ To use the function, you will need:
 * `AppKey`: A character string representing the application key for API access.
 * `RCurl`, `xml2`, `tibble`, `tidyr`, `dplyr` and `rlang` libraries installed in your R environment. These libraries handle API requests, parsing XML, and data manipulation.
 
+# Limitations
+
+The function returns only the first 50 results on Tradera for the given search query. Due to the limit on 100 calls to the Tradera API per day the results of the query are cached in the local environment.
+
 # Usage
 
 ## Function Arguments
 
-The function requires five arguments:
+The function requires four arguments:
 
 * AppId (numeric): The application ID provided by Tradera for API authentication.
 * AppKey (character): The application key provided by Tradera for API authentication.
-* pageNumber (numeric): The page number of the search results to retrieve (starting from 1).
 * orderBy (character): Specifies the order of search results. Acceptable values are:
   * Relevance: Orders results based on relevance to the search term.
   * PriceAscending: Orders results by price in ascending order.
@@ -53,14 +56,12 @@ The function requires five arguments:
 
 ## Return Value
 
-The function returns a list with the following two components:
+The function returns a data frame with the following columns:
 
-* df: A data frame containing the following columns:
-  * ShortDescription: A brief description of the item.
-  * LongDescription: A detailed description of the item.
-  * Price: The price or current bid for the item.
-  * ItemUrl: A URL to the item's listing on Tradera.
-* total_pages: The total number of pages available for the query.
+* ShortDescription: A brief description of the item.
+* LongDescription: A detailed description of the item.
+* Price: The price or current bid for the item.
+* ItemUrl: A URL to the item's listing on Tradera.
 
 If no items are found, the function returns a data frame with the message "Nothing found!". If there is an issue with the API (e.g., no response), it returns "Internal Tradera error!".
 
@@ -70,35 +71,30 @@ Here’s an example of using the function to search for ["Huernia"](https://en.w
 
 ```{r}
 # Define API credentials and search parameters
-AppId <- 5206 # Fake AppId, replace with your actual AppId
-AppKey <- "ff3c0f08-e66e-4189-971b-43094327265b" # Fake AppKey, replace with your actual AppKey
+AppId <- 5228 # Fake AppId, replace with your actual AppId
+AppKey <- "21d94819-b4d5-4f28-a26c-51fe79ca197f" # Fake AppKey, replace with your actual AppKey
 query <- "Huernia"
-pageNumber <- 1
 orderBy <- "Relevance"
 
 # Perform the search
-result <- Search(AppId, AppKey, pageNumber, orderBy, query)
+result <- Search(AppId, AppKey, orderBy, query)
 
 # Show the result
-knitr::kable(head(result$df))
+knitr::kable(head(result))
 ```
 
-# Example: Pagination and Ordering
-
-If there are multiple pages of results, you can modify the `pageNumber` parameter to access different pages, for instance, in case of search for "iPhone":
-
-```{r}
-# Fetch results from page 2
-result_page_2 <- Search(AppId, AppKey, 2, "Relevance", "iPhone")
-```
+# Example: Ordering
 
 To sort the results by price (ascending or descending), adjust the `orderBy` parameter:
 
 ```{r}  
 # Sort results by price (descending)
-result_by_price_asc <- Search(AppId, AppKey, 1, "PriceDescending", "iPhone")
+result_by_desc <- Search(AppId, AppKey, "PriceDescending", "iPhone")
+
+# Show the result
+knitr::kable(head(result_by_desc, n = 1))
 ```
 
 # Conclusion
 
-The `Search()` function simplifies the process of interacting with the Tradera API, making it easy to search for items, retrieve paginated results, and order them by relevance or price. By following the steps outlined in this vignette, you can efficiently search for and analyze Tradera listings in R.
+The `Search()` function simplifies the process of interacting with the Tradera API, making it easy to search for items, retrieve results, and order them by relevance. By following the steps outlined in this vignette, you can efficiently search for and analyze Tradera listings in R.

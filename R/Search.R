@@ -1,22 +1,25 @@
 #' Perform a Search Query to Tradera API
 #'
-#' This function sends a search request to the Tradera API using the provided credentials, page number, query, and ordering preferences.
-#' The results are returned as a list containing a data frame with relevant item details, and the total number of pages.
+#' This function sends a search request to the Tradera API using the provided credentials, query, and ordering preferences.
+#' The results are returned as a data frame with relevant item details.
 #'
 #' @param AppId Numeric. The application ID for authentication with the Tradera API.
 #' @param AppKey Character. The application key for authentication with the Tradera API.
-#' @param pageNumber Numeric. The page number of the search results to retrieve. Must be a scalar.
 #' @param orderBy Character. Specifies the order of the search results. Can be one of `Relevance`, `PriceAscending`, or `PriceDescending`.
 #' @param query Character. The search term or query to be used for retrieving items.
 #'
-#' @return A list containing two elements:
-#' \item{df}{A data frame with the following columns: `ShortDescription`, `LongDescription`, `Price`, and `ItemUrl`, which contain details of the items found in the search results.}
-#' \item{total_pages}{Numeric. The total number of pages available for the search query.}
+#' @return A data frame with the following columns:
+#' \item{ShortDescription}{A brief description of the item.}
+#' \item{LongDescription}{A detailed description of the item.}
+#' \item{Price}{The price or current bid for the item.}
+#' \item{ItemUrl}{A URL to the item's listing on Tradera.}
 #'
 #' If no items are found, the function returns a data frame with the message `"Nothing found!"`. If the API response is empty, it returns a data frame with the message `"Internal Tradera Error"`.
 #'
 #' @details
 #' The function constructs a SOAP request to interact with the Tradera API, performs the request using `RCurl`, and parses the XML response into a data frame using `xml2` and `tibble`.
+#' The function returns only the first 50 results on Tradera for the given search query. 
+#' Due to the limit on 100 calls to the Tradera API per day the results of the query are cached in the local environment.
 #'
 #' @importFrom RCurl basicTextGatherer curlPerform
 #' @importFrom xml2 read_xml as_list
@@ -28,7 +31,7 @@
 #'
 #' @export
 
-Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
+Search <- function(AppId, AppKey, orderBy, query) {
   # Check if AppId is provided; if not, stop execution with an error message
   if (missing(AppId)) stop("AppId must be specified")
 
@@ -40,15 +43,6 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
 
   # Ensure AppKey is a character string; if not, stop execution with an error message
   if (!is.character(AppKey)) stop("AppId must be character")
-
-  # Check if pageNumber is provided; if not, stop execution with an error message
-  if (missing(pageNumber)) stop("pageNumber must be specified")
-
-  # Ensure pageNumber is numeric; if not, stop execution with an error message
-  if (!is.numeric(pageNumber)) stop("pageNumber must be numeric")
-
-  # Ensure pageNumber is a scalar; if not, stop execution with an error message
-  if (!length(pageNumber) == 1) stop("pageNumber must be scalar")
 
   # Check if query is provided; if not, stop execution with an error message
   if (missing(query)) stop("query must be specified")
@@ -67,9 +61,24 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
   )) {
     stop("orderBy can be only Relevance, PriceAscending or PriceDescending")
   }
-
+  
+  # Ensure a global cache environment exists
+  cache_env <- getOption("tradera_search_cache")
+  if (is.null(cache_env)) {
+    cache_env <- new.env(parent = emptyenv())
+    options(tradera_search_cache = cache_env)
+  }
+  
+  # Create a unique cache key
+  cache_key <- paste(AppId, AppKey, orderBy, query, Sys.Date(), sep = "_")
+  
+  # Check if the result is already cached
+  if (exists(cache_key, envir = cache_env)) {
+    return(get(cache_key, envir = cache_env))
+  }
+  
   # Define a nested function to perform the XML query
-  xmlQuery <- function(AppId, AppKey, pageNumber, orderBy, query) {
+  xmlQuery <- function(AppId, AppKey, orderBy, query) {
     # Set up the HTTP headers for the SOAP request
     header <- c(
       Accept = "text/xml", "Content-Type" = "text/xml; charset=utf-8",
@@ -93,7 +102,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
     <Search xmlns="http://api.tradera.com">
       <query>]', as.character(query), r'[</query>
       <categoryId>0</categoryId>
-      <pageNumber>]', as.character(pageNumber), r'[</pageNumber>
+      <pageNumber>1</pageNumber>
       <orderBy>]', as.character(orderBy), r'[</orderBy>
     </Search>
   </soap:Body>
@@ -116,7 +125,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
   }
 
   # Call the xmlQuery function to execute the SOAP request
-  xml <- xmlQuery(AppId, AppKey, pageNumber, orderBy, query)
+  xml <- xmlQuery(AppId, AppKey, orderBy, query)
 
   # Check if the response is empty; if so, return an error message
   if (xml == "") {
@@ -126,8 +135,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
       Price = "",
       ItemUrl = ""
     )
-    list_df <- list("df" = df, "total_pages" = 0)
-    return(list_df)
+    return(df)
   }
 
   # Convert the XML response to a list
@@ -141,9 +149,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
     tibble::enframe() %>%
     tidyr::unnest_wider("value", names_sep = "_", names_repair = "universal")
 
-  # Get items and the total number of pages
-  xml_df_pages <- xml_df %>% filter(.data$name == "TotalNumberOfPages")
-  total_pages <- as.numeric(xml_df_pages$value_1)
+  # Get items
   xml_df <- xml_df %>% filter(.data$name == "Items")
 
   # Check if there are no items found;
@@ -155,8 +161,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
       Price = "",
       ItemUrl = ""
     )
-    list_df <- list("df" = df, "total_pages" = 0)
-    return(list_df)
+    return(df)
   }
 
   # Create a data frame with the relevant item details
@@ -167,7 +172,7 @@ Search <- function(AppId, AppKey, pageNumber, orderBy, query) {
     ItemUrl = unlist(xml_df$value_ItemUrl)
   )
 
-  # Return a list containing the data frame and total pages
-  list_df <- list("df" = df, "total_pages" = total_pages)
-  return(list_df)
+  # Cache the result and return it
+  assign(cache_key, df, envir = cache_env)
+  return(df)
 }
