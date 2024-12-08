@@ -1,6 +1,6 @@
 Package: TradeRa
 Title: Performing Search Queries with the Tradera API in R
-Description: This R package offers functionality for accessing the Tradera API, 
+Description: This R package provides functionality for accessing the Tradera API, 
     enabling users to perform search queries. This package is a part of the 
     coursework for the Advanced Programming in R course  (732A94) at Linköping 
     University.
@@ -9,9 +9,9 @@ Date: 2024-10-07
 Encoding: UTF-8
 License: GPL-2
 Authors@R: c(
-    person("Linn", "Frisell", email = "linfr259@student.liu.se", role = "cre"),
+    person("Linn", "Friberg", email = "linn.friberg@pm.me", role = "cre"),
     person("John", "Möller", email = "johmo@student.liu.se", role = "aut"))
-Maintainer: Linn F. <linfr259@student.liu.se>
+Maintainer: Linn Friberg <linn.friberg@pm.me>
 Imports: 
     RCurl,
     xml2,
