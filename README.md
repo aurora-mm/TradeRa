@@ -4,17 +4,17 @@
 
 # Overview
 
-This [R](https://www.r-project.org) package offers functionality for accessing the Tradera API, 
+This [R](https://www.r-project.org) package provides functionality for accessing the Tradera API, 
 enabling users to perform search queries. This package is a part of the coursework for the Advanced Programming in R course  (732A94) at Linköping University.
 
 # Dependencies
 
-RCurl, xml2, tibble, tidyr, dplyr, rlang
+`RCurl`, `xml2`, `tibble`, `tidyr`, `dplyr`, `rlang`
 
 # Installation
 
-To install this R package, you can utilize the `devtools` package, which facilitates the installation of packages hosted on GitHub repositories. First, ensure you have this package installed by executing `install.packages("devtools")`. Then, use the function `devtools::install_github("aurora-mm/TradeRa")`. This command will clone the repository and install the package directly into your R environment, making it readily available for use.
+To install this R package, first install `devtools` with `install.packages("devtools")`. Then, run `devtools::install_github("aurora-mm/TradeRa")` to install the package from GitHub.
 
 # Authors
 
-Linn Frisell (linfr259@student.liu.se), John Möller (johmo870@student.liu.se)
+Linn Friberg, John Möller
