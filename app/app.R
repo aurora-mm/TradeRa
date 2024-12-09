@@ -1,7 +1,8 @@
 # A Shiny app that allows users to search for items on Tradera using a query.
 # The app retrieves search results and displays them in a data table format.
 
-devtools::install_github("aurora-mm/TradeRa")
+# Run this first:
+# devtools::install_github("aurora-mm/TradeRa")
 
 library(shiny)
 library(DT)
